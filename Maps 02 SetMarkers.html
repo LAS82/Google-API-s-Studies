@@ -1,0 +1,172 @@
+<html>
+	<head>
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+		<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+		<script src='http://maps.googleapis.com/maps/api/js'></script>
+		
+		<style>
+		
+			.hideButton{			
+				visibility: hidden;			
+			}
+			
+			.showButton{			
+				visibility: visible;			
+			}
+		
+		</style>
+		
+		<script type='text/javascript'>
+		
+			$(document).ready(function(){
+		
+				var map;
+				var markers = [];
+		
+				//----------------------------------------------------------
+				// Sets all markers in the array on the map passed by 
+				// parameter.
+				//----------------------------------------------------------
+				function setArrayMapMarkers(map){
+				
+					for(var i = 0; i < markers.length; ++i){					
+						markers[i].setMap(map);		
+					}				
+				}
+					
+				//----------------------------------------------------------
+				// Sets a marker on the map.
+				//----------------------------------------------------------
+				function setMapMarker(latLng){
+					
+					var marker = new google.maps.Marker({
+						position: latLng,
+						map: map
+					});
+					
+					markers.push(marker);
+					
+					$('#btnChangeMarkersVisibility').removeClass('hideButton');
+					$('#btnChangeMarkersVisibility').addClass('showButton');
+					
+					$('#btnRemoveMarkers').removeClass('hideButton');
+					$('#btnRemoveMarkers').addClass('showButton');
+				}
+				
+				//----------------------------------------------------------
+				// Gets the map type selected by the user.
+				//----------------------------------------------------------
+				function getMapType(){
+				
+					switch($('input[name=MapType]:checked').val())
+					{
+						case 'HYBRID':	
+							return google.maps.MapTypeId.HYBRID;
+						case 'SATELLITE':
+							return google.maps.MapTypeId.SATELLITE;
+						case 'TERRAIN':
+							return google.maps.MapTypeId.TERRAIN;
+						default:
+							return google.maps.MapTypeId.ROADMAP;
+						
+					}				
+				}
+			
+				//----------------------------------------------------------
+				// Creates and returns the map properties object required
+				// by the google.maps.Map constructor.
+				//----------------------------------------------------------
+				function createMapPropertiesObj(){
+				
+					var latitude = $('#txtLatitude').val();
+					var longitude = $('#txtLongitude').val();
+					var position = new google.maps.LatLng(latitude, longitude);
+					var zoom = $('#txtZoom').val();
+					var mapTypeId = getMapType();					
+					
+					var mapProperties = {
+						center: position,
+						zoom: parseInt(zoom),
+						mapTypeId: mapTypeId,
+						disableDoubleClickZoom: true
+					};
+					
+					return mapProperties;
+				}
+			
+				//----------------------------------------------------------
+				// btnMap button click event. 
+				// Loads the map.
+				//----------------------------------------------------------
+				$('#btnMap').on('click', function(){
+				
+					var mapProperties = createMapPropertiesObj();	
+					
+					map = new google.maps.Map($('#googleMap').get(0), mapProperties);					
+					google.maps.event.addListener(map, 'dblclick', function(event){ setMapMarker(event.latLng); });					
+				});
+				
+				//----------------------------------------------------------
+				// btnRemoveMarkers button click event. 
+				// Removes all the markers.
+				//----------------------------------------------------------
+				$('#btnRemoveMarkers').on('click', function(){
+				
+					setArrayMapMarkers(null);
+					
+					markers = [];
+					
+					$('#btnChangeMarkersVisibility').removeClass('showButton');
+					$('#btnChangeMarkersVisibility').addClass('hideButton');
+					$('#btnChangeMarkersVisibility').val('Hide Markers');
+					
+					$('#btnRemoveMarkers').removeClass('showButton');
+					$('#btnRemoveMarkers').addClass('hideButton');				
+				});
+				
+				//----------------------------------------------------------
+				// btnChangeMarkersVisibility button click event. 
+				// Hides or shows all the markers.
+				//----------------------------------------------------------
+				$('#btnChangeMarkersVisibility').on('click', function(){
+					
+					if($(this).val() == 'Hide Markers'){
+						setArrayMapMarkers(null);						
+						$(this).val('Show Markers');
+					}
+					else{
+						setArrayMapMarkers(map);						
+						$(this).val('Hide Markers');
+					}				
+				});
+				
+				
+			});
+		
+		</script>
+	</head>
+	
+	<body>
+		<div class='panel panel-default' style='width: 500px'>		
+			<div class='panel-body form-group'>
+				<label>Latitude:</label> <input type='number' id='txtLatitude' class='form-control'/>
+				<label>Longitude:</label> <input type='number' id='txtLongitude' class='form-control'/>
+				<label>Zoom:</label> <input type='number' id='txtZoom' class='form-control'>
+				
+				<input type='radio' name='MapType' value='HYBRID'/> Hybrid
+				<input type='radio' name='MapType' value='ROADMAP'/> Road Map
+				<input type='radio' name='MapType' value='SATELLITE'/> Satellite
+				<input type='radio' name='MapType' value='TERRAIN'/> Terrain				
+				
+				<div style='padding-top: 10px' class='form-inline'>
+					<input type='button' id='btnMap' value='Show Map' class='form-control btn btn-primary'/>
+					<input type='button' id='btnRemoveMarkers' value='Remove Markers' class='form-control btn btn-info hideButton'/>
+					<input type='button' id='btnChangeMarkersVisibility' value='Hide Markers' class='form-control btn btn-info hideButton'/>
+				</div>
+			</div>			
+		<div>
+		
+		<div id='googleMap' style='width:500px;height:380px;'></div>		
+	</body>
+
+</html>

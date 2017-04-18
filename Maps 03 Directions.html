@@ -1,0 +1,119 @@
+<html>
+	<head>
+	
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+		<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+		<script src='http://maps.googleapis.com/maps/api/js'></script>
+
+		<script type='text/javascript'>
+		
+			var map;
+			var markers = [];
+			
+			$(document).ready(function(){
+				
+				var mapProperties = createMapPropertiesObj();					
+				map = new google.maps.Map($("#googleMap").get(0), mapProperties);								
+			
+				//----------------------------------------------------------
+				// Creates and returns the map properties object required
+				// by the google.maps.Map constructor.
+				//----------------------------------------------------------
+				function createMapPropertiesObj(){
+				
+					var latitude = 0;
+					var longitude = 0;
+					var position = new google.maps.LatLng(latitude, longitude);
+					var zoom = 0;					
+					
+					var mapProperties = {
+						center: position,
+						zoom: parseInt(zoom),
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					};
+					
+					return mapProperties;
+				}
+				
+				//----------------------------------------------------------
+				// Creates a formatted address.
+				//----------------------------------------------------------
+				function createGoogleFormatAddress(address, number, city){
+				
+					return address + ',' + number + ',' + city;				
+				}
+				
+				//----------------------------------------------------------
+				// btnDirections button click event. 
+				// Shows the direction on the map.
+				//----------------------------------------------------------
+				$('#btnDirections').on('click', function(){
+				
+					var origin = createGoogleFormatAddress(
+						$('#txtOriginAddress').val(), 
+						$('#txtOriginAddressNumber').val(), 
+						$('#txtOriginCity').val());
+					
+					var destination = createGoogleFormatAddress(
+						$('#txtDestinationAddress').val(), 
+						$('#txtDestinationAddressNumber').val(), 
+						$('#txtDestinationCity').val());
+					
+					
+					var directionsService = new google.maps.DirectionsService;
+					var directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+					
+					directionsService.route({origin: origin, destination: destination, travelMode: google.maps.TravelMode.DRIVING}, 
+						function(response, status) {
+							if (status === google.maps.DirectionsStatus.OK) {
+								directionsDisplay.setDirections(response);
+							} else {
+								window.alert('Directions request failed due to ' + status);
+						}
+					});					
+				});				
+			});
+		
+		</script>
+		
+	</head>
+	
+	<body>
+		<div>		
+			<div class='panel panel-default form-inline'>				
+				<div class='panel-body form-group'>
+					<h4>Origin</h4>
+					<label>Address:</label> 
+					<input type='text' id='txtOriginAddress' class='form-control' />
+				
+					<label>Number:</label> 
+					<input type='number' id='txtOriginAddressNumber' class='form-control' style='width: 80px'>
+				
+					<label>City:</label> 
+					<input type='text' id='txtOriginCity' class='form-control'>					
+				</div>
+			</div>
+			
+			<div class='panel panel-default form-inline'>
+				<div class='panel-body form-group'>
+					<h4>Destination</h4>
+					<label>Address:</label> 
+					<input type='text' id='txtDestinationAddress' class='form-control' />
+					
+					<label>Number:</label> 
+					<input type='number' id='txtDestinationAddressNumber' class='form-control' style='width: 80px'>
+					
+					<label>City:</label> 
+					<input type='text' id='txtDestinationCity' class='form-control'>
+				</div>
+			</div>
+			
+			<div style='padding: 0px 10px 10px 10px' class='form-inline'>
+				<input type='button' id='btnDirections' value='Generate Directions' class='form-control btn btn-primary'/>
+			</div>
+		<div>
+		
+		<div id="googleMap" style="width:500px;height:380px"></div>		
+	</body>
+
+</html>

@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js'></script>
+		<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+		<script src='http://maps.googleapis.com/maps/api/js'></script>
+		
+		<script type='text/javascript'>
+		
+			$(document).ready(function(){
+				
+				//----------------------------------------------------------
+				// Gets the map type selected by the user.
+				//----------------------------------------------------------
+				function getMapType(){
+				
+					switch($('input[name=MapType]:checked').val())
+					{
+						case 'HYBRID':	
+							return google.maps.MapTypeId.HYBRID;
+						case 'SATELLITE':
+							return google.maps.MapTypeId.SATELLITE;
+						case 'TERRAIN':
+							return google.maps.MapTypeId.TERRAIN;
+						default:
+							return google.maps.MapTypeId.ROADMAP;
+						
+					}				
+				}
+			
+				//----------------------------------------------------------
+				// Creates and returns the map properties object required 
+				// by the google.maps.Map object.
+				//----------------------------------------------------------
+				function createMapPropertiesObj(){
+				
+					var latitude = $('#txtLatitude').val();
+					var longitude = $('#txtLongitude').val();
+					var position = new google.maps.LatLng(latitude, longitude);
+					var zoom = parseInt($('#txtZoom').val());
+					var mapTypeId = getMapType();					
+					
+					var mapProperties = {
+						center: position,
+						zoom: zoom,
+						mapTypeId: mapTypeId
+					};
+					
+					return mapProperties;
+				}
+			
+				//----------------------------------------------------------
+				// btnMap button click event. 
+				// Loads the map.
+				//----------------------------------------------------------
+				$('#btnMap').on('click', function(){
+				
+					var mapProperties = createMapPropertiesObj();										
+					var map = new google.maps.Map($('#googleMap').get(0), mapProperties);										
+				});
+				
+			});
+		
+		</script>
+	</head>
+	
+	<body>
+		
+		<div class='panel panel-default' style='width:500px'>
+			<div class='panel-body form-group'>				
+				<label>Latitude:</label> <input type='number' id='txtLatitude' class='form-control'/>
+				<label>Longitude:</label> <input type='number' id='txtLongitude' class='form-control'/>
+				<label>Zoom:</label> <input type='number' id='txtZoom' class='form-control'>
+			
+				<input type='radio' name='MapType' value='HYBRID'/> Hybrid
+				<input type='radio' name='MapType' value='ROADMAP'/> Road Map
+				<input type='radio' name='MapType' value='SATELLITE'/> Satellite
+				<input type='radio' name='MapType' value='TERRAIN'/> Terrain
+				
+				<div style='padding-top: 10px'>
+					<input type='button' id='btnMap' value='Show Map' class='form-control btn btn-primary'/>
+				</div>
+			</div>
+		</div>
+		
+		<div id='googleMap' style='width:500px;height:380px;'></div>		
+	</body>
+
+</html>
